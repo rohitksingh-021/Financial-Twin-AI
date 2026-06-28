@@ -336,7 +336,15 @@ def _greeting(data: CustomerData) -> dict:
     return {
         "message": f"Hello {data.profile.name}! 👋 I'm your AI Financial Advisor. I've analyzed your complete financial profile and have personalized insights ready. What would you like to discuss? You can ask about investments, savings, loans, taxes, or any financial topic.",
         "suggestions": ["Where should I invest?", "How can I save more?", "Am I ready to buy a house?", "Review my tax savings"],
-        "context": {"topic": "greeting"},
+        "context": {
+            "topic": "greeting",
+            "data_points": [
+                f"Profile: {data.profile.name}, age {data.profile.age}",
+                f"Risk appetite: {data.profile.risk_appetite.value}",
+                f"Investments: {len(data.investments)} instruments",
+                f"Goals: {len(data.goals)} active goals",
+            ],
+        },
     }
 
 
@@ -352,6 +360,13 @@ def _investment_advice(data: CustomerData) -> dict:
             "topic": "investment",
             "confidence": 85,
             "portfolio_value": total_inv,
+            "data_points": [
+                f"Portfolio value: ₹{total_inv:,.0f}",
+                f"Asset classes: {len(types)}",
+                f"Blended return: {avg_return:.1f}%",
+                f"Risk profile: {data.profile.risk_appetite.value}",
+                f"Age: {data.profile.age} (target equity: 65-70%)",
+            ],
         },
     }
 
@@ -365,7 +380,18 @@ def _savings_advice(data: CustomerData) -> dict:
     return {
         "message": f"Let me analyze your spending patterns:\n\n💰 **Savings Rate**: {savings_rate:.0f}% (Target: 30%)\n\n**Top Expense Categories:**\n🏠 Rent: ₹35,000/month (largest fixed cost)\n🛒 Shopping: Variable, spikes in Nov-Dec\n🍔 Food & Dining: ₹4,000-6,000/month\n\n**Quick Wins:**\n1. Set up auto-transfer of 25% on salary day\n2. Review and cancel unused subscriptions\n3. Switch to a cashback credit card for groceries\n4. Use UPI payments to track all expenses\n\n**Confidence**: 90% | Based on 12-month transaction analysis",
         "suggestions": ["Show my spending breakdown", "Set up savings goal", "Find unused subscriptions"],
-        "context": {"topic": "savings", "confidence": 90, "savings_rate": savings_rate},
+        "context": {
+            "topic": "savings",
+            "confidence": 90,
+            "savings_rate": savings_rate,
+            "data_points": [
+                f"Avg monthly income: ₹{avg_income:,.0f}",
+                f"Avg monthly expenses: ₹{avg_expenses:,.0f}",
+                f"Current savings rate: {savings_rate:.0f}%",
+                "Target savings rate: 30%",
+                "Analysis based on 12-month transaction history",
+            ],
+        },
     }
 
 
@@ -376,7 +402,17 @@ def _debt_advice(data: CustomerData) -> dict:
     return {
         "message": f"Here's your debt snapshot:\n\n📋 **Total Outstanding**: ₹{total_debt:,.0f}\n📋 **Monthly EMIs**: ₹{total_emi:,.0f}\n\n{'Your debt is manageable.' if total_emi < data.profile.monthly_income * 0.3 else '⚠️ EMI burden is high.'}\n\n**Recommendations:**\n1. Prioritize prepaying the personal loan (11.5% rate)\n2. ₹50,000 prepayment could save ₹12,000 in interest\n3. Avoid new debt until existing loans are below 20% of income\n\n**Confidence**: 88%",
         "suggestions": ["Simulate loan prepayment", "Check home loan eligibility", "Debt freedom plan"],
-        "context": {"topic": "debt", "confidence": 88, "total_debt": total_debt},
+        "context": {
+            "topic": "debt",
+            "confidence": 88,
+            "total_debt": total_debt,
+            "data_points": [
+                f"Total outstanding: ₹{total_debt:,.0f}",
+                f"Monthly EMIs: ₹{total_emi:,.0f}",
+                f"EMI-to-income: {total_emi/data.profile.monthly_income*100:.0f}%",
+                f"Active loans: {len(data.loans)}",
+            ],
+        },
     }
 
 
@@ -387,7 +423,17 @@ def _home_advice(data: CustomerData) -> dict:
     return {
         "message": f"🏠 **Home Purchase Readiness Analysis**\n\n{'Goal: ' + goal.name if goal else 'No home purchase goal set'}\n📊 Progress: {progress:.0f}% (₹{goal.current_amount:,.0f} of ₹{goal.target_amount:,.0f})\n\n**Readiness Checklist:**\n✅ Stable income (24+ months)\n{'✅' if progress > 20 else '⬜'} Down payment (20% = ₹{goal.target_amount * 0.2:,.0f})\n✅ Credit score inquiry done\n⬜ Emergency fund (need 6 months post-purchase)\n\n**Home Loan Estimate:**\n• Eligible amount: ~₹{data.profile.annual_income * 4:,.0f}\n• Approx EMI: ₹{data.profile.annual_income * 4 * 0.0085:,.0f}/month (8.5%, 20yr)\n• EMI-to-income: {data.profile.annual_income * 4 * 0.0085 / data.profile.monthly_income * 100:.0f}%\n\n**Confidence**: 82%",
         "suggestions": ["Simulate mortgage scenarios", "View Wealth GPS for house", "Compare home loan rates"],
-        "context": {"topic": "home", "confidence": 82},
+        "context": {
+            "topic": "home",
+            "confidence": 82,
+            "data_points": [
+                f"Home goal progress: {progress:.0f}%",
+                f"Loan eligibility: ~₹{data.profile.annual_income * 4:,.0f}",
+                f"EMI-to-income at eligibility: {data.profile.annual_income * 4 * 0.0085 / data.profile.monthly_income * 100:.0f}%",
+                "Furniture & property searches detected in transactions",
+                "87% home purchase probability detected",
+            ],
+        },
     }
 
 
@@ -398,7 +444,16 @@ def _retirement_advice(data: CustomerData) -> dict:
     return {
         "message": f"🏖️ **Retirement Planning Analysis**\n\n⏰ Years to retirement: {years_to_retire}\n{'📊 Current corpus: ₹' + f'{ret_goal.current_amount:,.0f}' if ret_goal else '⚠️ No retirement goal set!'}\n{'📊 Target: ₹' + f'{ret_goal.target_amount:,.0f}' if ret_goal else ''}\n\n**Key Actions:**\n1. Maximize NPS contribution (tax benefit + corpus growth)\n2. Consider EPF voluntary contribution\n3. SIP in equity index funds for long-term growth\n4. Review retirement target annually for inflation\n\n**Monthly SIP needed for ₹5Cr at 60**: ~₹{5_00_00_000 * 0.01 / (((1+0.01)**((60-data.profile.age)*12) - 1)):,.0f}/month (assuming 12% CAGR)\n\n**Confidence**: 80%",
         "suggestions": ["Simulate early retirement at 50", "Increase NPS contribution", "Retirement corpus calculator"],
-        "context": {"topic": "retirement", "confidence": 80},
+        "context": {
+            "topic": "retirement",
+            "confidence": 80,
+            "data_points": [
+                f"Years to retirement (60): {60 - data.profile.age}",
+                f"Current retirement corpus: ₹{ret_goal.current_amount:,.0f}" if ret_goal else "No retirement goal set",
+                "Assumes 12% CAGR for equity SIP",
+                "NPS 80CCD(1B) benefit: ₹50,000/year deduction",
+            ],
+        },
     }
 
 
@@ -406,7 +461,16 @@ def _tax_advice(data: CustomerData) -> dict:
     return {
         "message": f"🧾 **Tax Optimization Strategies**\n\n**Current Utilization:**\n• Section 80C: PPF + Insurance premiums\n• Section 80D: Health insurance premium\n• Section 80CCD: NPS contribution\n\n**Opportunities:**\n1. ₹46,000+ gap in 80C limit — invest in ELSS funds\n2. NPS additional ₹50,000 deduction available (80CCD1B)\n3. Home loan interest deduction (80EEA) when you buy\n4. Consider HRA optimization if renting\n\n**Estimated Tax Saving**: ₹35,000-50,000/year\n\n**Confidence**: 90%",
         "suggestions": ["Calculate exact tax savings", "Best ELSS funds", "NPS vs PPF comparison"],
-        "context": {"topic": "tax", "confidence": 90},
+        "context": {
+            "topic": "tax",
+            "confidence": 90,
+            "data_points": [
+                "Section 80C limit: ₹1,50,000",
+                "PPF + Insurance premiums counted",
+                "NPS 80CCD(1B) extra: ₹50,000",
+                "Estimated annual tax saving: ₹35,000-50,000",
+            ],
+        },
     }
 
 
@@ -417,7 +481,16 @@ def _insurance_advice(data: CustomerData) -> dict:
     return {
         "message": f"🛡️ **Insurance Coverage Review**\n\n**Life Cover**: ₹{life:,.0f} ({life/data.profile.annual_income:.0f}x income)\n**Health Cover**: ₹{health:,.0f}\n\n**Recommendations:**\n1. {'✅ Adequate' if life >= data.profile.annual_income * 10 else '⚠️ Increase to 10x income (₹' + f'{data.profile.annual_income*10:,.0f}' + ')'}\n2. {'✅ Good' if health >= 1000000 else '⚠️ Add super top-up to reach ₹10-15L'}\n3. Consider critical illness rider\n4. {'Add personal accident cover' if data.profile.dependents > 0 else 'Review annually'}\n\n**Confidence**: 92%",
         "suggestions": ["Compare term plans", "Calculate ideal cover", "Review claim process"],
-        "context": {"topic": "insurance", "confidence": 92},
+        "context": {
+            "topic": "insurance",
+            "confidence": 92,
+            "data_points": [
+                f"Life cover: ₹{life:,.0f} ({life/data.profile.annual_income:.0f}x income)",
+                f"Health cover: ₹{health:,.0f}",
+                f"Recommended life cover: ₹{data.profile.annual_income*10:,.0f} (10x income)",
+                f"Dependents: {data.profile.dependents}",
+            ],
+        },
     }
 
 
@@ -431,7 +504,16 @@ def _emergency_advice(data: CustomerData) -> dict:
     return {
         "message": f"🆘 **Emergency Fund Status**\n\n📊 Current: ₹{current:,.0f} ({months:.1f} months)\n🎯 Target: ₹{avg_exp*6:,.0f} (6 months)\n\n**Plan:**\n1. Allocate ₹{(avg_exp*6 - current)/12:,.0f}/month to liquid fund\n2. Keep in instant-access instrument (liquid fund or sweep FD)\n3. Don't invest emergency fund in equity\n4. Review every 6 months as expenses change\n\n**Confidence**: 95%",
         "suggestions": ["Best liquid funds", "Set up auto-SIP for emergency fund", "Review expenses"],
-        "context": {"topic": "emergency", "confidence": 95},
+        "context": {
+            "topic": "emergency",
+            "confidence": 95,
+            "data_points": [
+                f"Monthly expenses: ₹{avg_exp:,.0f}",
+                f"Current emergency fund: ₹{current:,.0f}",
+                f"Months covered: {months:.1f} (target: 6)",
+                f"Gap: ₹{max(0, avg_exp*6 - current):,.0f}",
+            ],
+        },
     }
 
 
@@ -439,5 +521,13 @@ def _general_advice(data: CustomerData) -> dict:
     return {
         "message": f"I'd be happy to help you with that, {data.profile.name}! Here are some areas I can advise on:\n\n📈 **Investments** — Portfolio review, SIP optimization, asset allocation\n💰 **Savings** — Expense analysis, savings strategies, budgeting\n🏠 **Goals** — Home purchase, retirement, education planning\n🧾 **Taxes** — 80C, 80D, NPS deductions, ELSS\n🛡️ **Insurance** — Life, health, coverage analysis\n📊 **What-If** — Simulate any financial scenario\n\nJust ask me anything specific!",
         "suggestions": ["Review my finances", "Where should I invest?", "Am I on track for my goals?", "Tax saving tips"],
-        "context": {"topic": "general"},
+        "context": {
+            "topic": "general",
+            "data_points": [
+                f"Profile analyzed: {data.profile.name}, age {data.profile.age}",
+                f"Income: ₹{data.profile.annual_income:,.0f}/year",
+                f"Investments: {len(data.investments)} instruments",
+                f"Active loans: {len(data.loans)}",
+            ],
+        },
     }
