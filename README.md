@@ -1,10 +1,10 @@
-# Financial Twin AI 🤖📊
+# Financial Twin AI 
 
 Financial Twin AI transforms digital banking from a reactive, transactional utility into a proactive, intelligent, and autonomous wealth-building partner. By building a living digital twin of a user's financial profile, it forecasts trajectories, monitors financial stress, predicts life milestones, and guides users toward financial freedom.
 
 ---
 
-## 🚀 Key Features
+## Key Features
 
 *   **Financial Digital Twin Engine**: Plot net worth projections (realistic, optimistic, pessimistic) up to 5-10 years.
 *   **Financial Vitality Score™**: A multidimensional health metric (0-100) assessing liquidity, investment growth, protection, and risk.
@@ -16,7 +16,7 @@ Financial Twin AI transforms digital banking from a reactive, transactional util
 
 ---
 
-## 🛠️ Technology Stack
+## Technology Stack
 
 ### Frontend
 *   **Core**: Next.js 15+, React 19, TypeScript
@@ -33,7 +33,7 @@ Financial Twin AI transforms digital banking from a reactive, transactional util
 
 ---
 
-## 📂 Folder Structure
+## Folder Structure
 
 ```text
 ├── backend/
@@ -55,7 +55,7 @@ Financial Twin AI transforms digital banking from a reactive, transactional util
 
 ---
 
-## ⚙️ Installation & Running Locally
+##  Installation & Running Locally
 
 Ensure you have **Python 3.10+** and **Node.js 18+** installed.
 
@@ -96,7 +96,7 @@ Open http://localhost:3000 in your browser to view the application.
 
 ---
 
-## 🧠 AI Agent Orchestration Details
+## AI Agent Orchestration Details
 
 The **AI Advisor** runs on a cooperative 8-agent framework:
 1.  **AI Orchestrator**: Manages state, classifies user query intent.
